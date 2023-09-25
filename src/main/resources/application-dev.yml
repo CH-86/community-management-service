@@ -1,0 +1,26 @@
+spring:
+  devtools:
+    restart:
+      #开始热加载
+      enabled: true
+  datasource:
+#    url: jdbc:mysql://127.0.0.1:3306/community_management?characterEncoding=utf-8&useSSL=true&serverTimezone=GMT
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: root
+#    password: 123456
+    #
+    url: jdbc:mysql://sql.wsfdb.cn:3306/tokiseki97cm
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: tokiseki97cm
+    password: 123456
+  mvc:
+    static-path-pattern: /static/**
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+server:
+  port: 8888
+  #地址
+  servlet:
+    context-path: /community-management-service

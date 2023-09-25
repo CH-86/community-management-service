@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.limin.commanser.mapper.NewsMapper">
+    <!--配置数据库字段和实体字段映射规则-->
+    <resultMap id="newsMap" type="com.limin.commanser.entity.News">
+        <result column="news_id" property="newsId"/>
+        <result column="news_title" property="newsTitle"/>
+        <result column="news_image" property="newsImage"/>
+        <result column="news_content" property="newsContent"/>
+        <result column="news_type" property="newsType"/>
+        <result column="news_create_time" property="newsCreateTime"/>
+        <result column="news_community_id" property="newsCommunityId"/>
+        <result column="news_status" property="newsStatus"/>
+    </resultMap>
+    <resultMap id="newsInfoMap" type="com.limin.commanser.dto.NewsDto">
+        <result column="news_id" property="newsId"/>
+        <result column="news_title" property="newsTitle"/>
+        <result column="news_image" property="newsImage"/>
+        <result column="news_content" property="newsContent"/>
+        <result column="news_type" property="newsType"/>
+        <result column="news_create_time" property="newsCreateTime"/>
+        <result column="news_community_id" property="newsCommunityId"/>
+        <result column="news_status" property="newsStatus"/>
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="community_discription" property="communityDiscription"/>
+        <result column="community_logo" property="communityLogo"/>
+    </resultMap>
+
+
+    <select id="findAll" resultMap="newsInfoMap" parameterType="map">
+        SELECT * FROM com_man_news
+        JOIN com_man_community ON com_man_news.news_community_id = com_man_community.community_id
+
+        WHERE news_type = #{newsType}
+        <if test="communityId != null and communityId != ''">
+            AND community_id = #{communityId}
+        </if>
+        <if test="newsStatus != null and newsStatus != ''">
+            AND news_status = #{newsStatus}
+        </if>
+        <if test="order != null and order != ''">
+            ORDER BY news_create_time ${order}
+        </if>
+    </select>
+
+    <select id="findById" resultMap="newsInfoMap" parameterType="java.lang.Integer">
+        SELECT * FROM com_man_news
+            JOIN com_man_community ON com_man_news.news_community_id = com_man_community.community_id
+            WHERE news_id = #{newsId}
+    </select>
+
+    <select id="findTotal" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+         SELECT COUNT(1) FROM com_man_news WHERE news_type = #{newsType}
+    </select>
+
+    <delete id="removeById" parameterType="java.lang.Integer">
+        DELETE FROM com_man_news  WHERE news_id = #{newsId}
+    </delete>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.News" useGeneratedKeys="true" keyProperty="newsId">
+        INSERT INTO com_man_news
+            (news_title,news_image,news_content,news_type,news_create_time,news_community_id,news_status)
+        VALUES (#{newsTitle},#{newsImage},#{newsContent},#{newsType},#{newsCreateTime},#{newsCommunityId},0)
+    </insert>
+
+    <update id="modifyInfo" parameterType="com.limin.commanser.entity.News">
+        UPDATE com_man_news SET
+        <if test="newsTitle != null and newsTitle != ''">
+             news_title = #{newsTitle}
+        </if>
+        <if test="newsImage != null and newsImage != ''">
+            news_image = #{newsImage}
+        </if>
+        <if test="newsContent != null and newsContent != ''">
+            news_content = #{newsContent}
+        </if>
+        <if test="newsCreateTime != null and newsCreateTime != ''">
+            news_create_time = #{newsCreateTime}
+        </if>
+        WHERE news_id = #{newsId}
+    </update>
+
+    <update id="approvalNews">
+        UPDATE com_man_news SET  news_status = #{newsStatus}
+         WHERE news_id = #{newsId}
+    </update>
+
+    <select id="findAllByCommunityIdStatistics" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+       SELECT COUNT(1) FROM com_man_news news WHERE news_community_id = #{communityId}
+    </select>
+
+</mapper>

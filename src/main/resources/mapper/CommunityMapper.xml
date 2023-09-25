@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.limin.commanser.mapper.CommunityMapper">
+    <resultMap id="BaseResultMap" type="com.limin.commanser.entity.Community">
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="community_discription" property="communityDiscription"/>
+        <result column="community_logo" property="communityLogo"/>
+        <result column="community_status" property="communityStatus"/>
+    </resultMap>
+    <resultMap id="communityInfoMap" type="com.limin.commanser.dto.CommunityDto">
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="community_discription" property="communityDiscription"/>
+        <result column="community_logo" property="communityLogo"/>
+        <result column="community_status" property="communityStatus"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_telephone" property="userTelephone"/>
+    </resultMap>
+    <select id="findAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM com_man_community
+    </select>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.Community"
+            keyProperty="communityId" useGeneratedKeys="true">
+        INSERT INTO com_man_community (community_name,community_discription,community_logo,community_status)
+            VALUES (#{communityName},#{communityDiscription},#{communityLogo},#{communityStatus})
+    </insert>
+
+    <update id="modify" parameterType="com.limin.commanser.entity.Community">
+        UPDATE com_man_community SET
+        <if test="communityName != null and communityName != ''">
+            community_name = #{communityName}
+        </if>
+        <if test="communityDiscription != null and communityDiscription != ''">
+            ,community_discription = #{communityDiscription}
+        </if>
+        <if test="communityLogo != null and communityLogo != ''">
+            ,community_logo = #{communityLogo}
+        </if>
+        WHERE community_id = #{communityId}
+    </update>
+
+    <delete id="removeById" parameterType="java.lang.String">
+        DELETE FROM com_man_community WHERE  community_id = #{communityId}
+    </delete>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM com_man_community
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT * FROM  com_man_community   WHERE community_id = #{communityId}
+    </select>
+
+    <update id="approvalCommunity" parameterType="com.limin.commanser.entity.Community">
+        UPDATE com_man_community SET community_status = #{communityStatus} WHERE community_id = #{communityId}
+    </update>
+
+    <select id="findAllByPaging" parameterType="java.util.Map" resultMap="communityInfoMap">
+        SELECT community.*, `user`.user_name,`user`.user_telephone FROM com_man_community community
+            JOIN com_man_user `user` ON community.community_id = `user`.user_community_id
+        WHERE `user`.user_type = 1
+        <if test="order != null and order != ''">
+            ORDER BY community_name ${communityName}
+        </if>
+    </select>
+
+    <insert id="joinCommunity" parameterType="com.limin.commanser.dto.JoinCommunityDto">
+        INSERT INTO com_man_re_user_community (community_id,user_id,`status`) VALUES (#{communityId},#{userId},#{status})
+    </insert>
+
+</mapper>

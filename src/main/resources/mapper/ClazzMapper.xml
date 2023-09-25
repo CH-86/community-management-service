@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--对应的UserMap类-->
+<mapper namespace="com.limin.commanser.mapper.ClazzMapper">
+    <!--配置数据库字段和实体字段映射规则-->
+    <resultMap id="BaseResultMap" type="com.limin.commanser.entity.Clazz">
+        <result column="clazz_id" property="clazzId"/>
+        <result column="clazz_name" property="clazzName"/>
+        <result column="college_id" property="collegeId"/>
+    </resultMap>
+
+    <select id="findAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM com_man_clazz
+    </select>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.Clazz" keyColumn="clazz_id" useGeneratedKeys="true"
+            keyProperty="clazzId">
+        INSERT INTO com_man_clazz  (clazz_name,college_id)  VALUES  (#{clazzName},#{collegeId})
+    </insert>
+
+    <update id="update" parameterType="com.limin.commanser.entity.Clazz">
+        UPDATE com_man_clazz SET clazz_name = #{clazzName}, college_id = #{collegeId} WHERE clazz_id = ${clazzId}
+    </update>
+</mapper>

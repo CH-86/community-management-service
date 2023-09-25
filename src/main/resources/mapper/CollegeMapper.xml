@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--对应的UserMap类-->
+<mapper namespace="com.limin.commanser.mapper.CollegeMapper">
+    <!--配置数据库字段和实体字段映射规则-->
+    <resultMap id="BaseResultMap" type="com.limin.commanser.entity.College">
+        <result column="college_id" property="collegeId"/>
+        <result column="college_name" property="collegeName"/>
+    </resultMap>
+
+    <select id="findAll" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM com_man_college
+    </select>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.College" keyColumn="college_id" useGeneratedKeys="true"
+            keyProperty="collegeId">
+        INSERT INTO com_man_college  (college_name)  VALUES  (#{collegeName})
+    </insert>
+
+    <update id="update" parameterType="com.limin.commanser.entity.College">
+        UPDATE com_man_college SET college_name = #{collegeName} WHERE college_id = ${collegeId}
+    </update>
+
+    <select id="findById" parameterType="com.limin.commanser.entity.College" resultMap="BaseResultMap">
+        SELECT * FROM com_man_college WHERE college_id = #{collegeId}
+    </select>
+</mapper>

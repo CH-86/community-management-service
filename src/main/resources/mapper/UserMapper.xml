@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--对应的UserMap类-->
+<mapper namespace="com.limin.commanser.mapper.UserMapper">
+    <!--配置数据库字段和实体字段映射规则-->
+    <resultMap id="userInfoMap" type="com.limin.commanser.dto.UserDto">
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_password" property="userPassword"/>
+        <result column="user_clazz_id" property="userClazzId"/>
+        <result column="user_department" property="userDepartment"/>
+        <result column="user_image" property="userImage"/>
+        <result column="user_qq" property="userQq"/>
+        <result column="user_telephone" property="userTelephone"/>
+        <result column="user_gender" property="userGender"/>
+        <result column="user_type" property="userType"/>
+        <result column="user_community_id" property="userCommunityId"/>
+        <result column="clazz_id" property="clazzId"/>
+        <result column="clazz_name" property="clazzName"/>
+        <result column="college_id" property="collegeId"/>
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="community_discription" property="communityDiscription"/>
+        <result column="community_logo" property="communityLogo"/>
+    </resultMap>
+
+    <resultMap id="userMap" type="com.limin.commanser.entity.User">
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_password" property="userPassword"/>
+        <result column="user_clazz_id" property="userClazzId"/>
+        <result column="user_department" property="userDepartment"/>
+        <result column="user_image" property="userImage"/>
+        <result column="user_qq" property="userQq"/>
+        <result column="user_telephone" property="userTelephone"/>
+        <result column="user_gender" property="userGender"/>
+        <result column="user_type" property="userType"/>
+        <result column="user_community_id" property="userCommunityId"/>
+    </resultMap>
+    <select id="findOne" resultMap="userMap">
+        <!-- # 将传入的数据加上双引号,能够防止SQL注入 $ 传入数据是什么就显示什么-->
+        SELECT * FROM com_man_user WHERE user_id = #{userId} AND user_password = #{userPassword}
+    </select>
+
+    <!--分页查询+排序 默认为升序 ASC 降序  DESC
+    -->
+    <select id="findAll" parameterType="map" resultMap="userInfoMap">
+        SELECT * FROM com_man_user
+            JOIN com_man_clazz ON com_man_user.user_clazz_id = com_man_clazz.clazz_id
+            JOIN com_man_community ON com_man_user.user_community_id = com_man_community.community_id
+        <if test="order != null and order != ''">
+            ORDER BY user_name ${order}
+        </if>
+    </select>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.User">
+        INSERT INTO com_man_user
+            (user_id,user_name,user_password,user_clazz_id,user_qq,user_telephone,user_gender)
+            VALUES
+                (#{userId},#{userName},#{userPassword},#{userClazzId},#{userQq},#{userTelephone},#{userGender})
+    </insert>
+
+    <update id="update" parameterType="com.limin.commanser.entity.User">
+        UPDATE com_man_user
+            SET
+
+                <if test="userPassword != null">
+                    user_password = #{userPassword}
+                </if>
+                <if test="userName != null">
+                    ,user_name = #{userName}
+                </if>
+                <if test="userClazzId != null">
+                    ,user_clazz_id = #{userClazzId}
+                </if>
+                <if test="userQq != null">
+                    ,user_qq = #{userQq}
+                </if>
+                <if test="userTelephone != null">
+                    ,user_telephone = #{userTelephone}
+                </if>
+                <if test="userDepartment != null">
+                    ,user_department = #{userDepartment}
+                </if>
+                <if test="userImage != null">
+                    ,user_image = #{userImage}
+                </if>
+                <if test="userType != null">
+                    ,user_type = #{userType}
+                </if>
+                <if test="userCommunityId != null">
+                    ,user_community_id = #{userCommunityId}
+                </if>
+                <if test="userGender != null">
+                    ,user_gender = #{userGender}
+                </if>
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="findById" parameterType="java.lang.String" resultMap="userMap">
+        SELECT * FROM com_man_user WHERE user_id = #{userId}
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM com_man_user WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="batchDeleteById" parameterType="java.util.List">
+        DELETE FROM com_man_user WHERE user_id IN
+        <foreach collection="array" open="(" close=")" separator="," item="userId">#{userId}</foreach>
+    </delete>
+
+    <select id="getTotal" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM com_man_user
+    </select>
+
+    <select id="findAllByLikeUserName" resultMap="userMap" parameterType="string">
+        SELECT * FROM com_man_user  WHERE user_name LIKE CONCAT('%',#{userName},'%')
+    </select>
+
+    <select id="findByCommunityId" parameterType="java.lang.Integer" resultMap="userInfoMap">
+      SELECT * FROM com_man_user JOIN com_man_clazz ON com_man_user.user_clazz_id = com_man_clazz.clazz_id
+         WHERE user_id IN
+            (
+                SELECT user_id FROM com_man_re_user_community WHERE community_id = #{communityId} AND `status` = #{status}
+            )
+    </select>
+
+    <delete id="memberRemoveById" >
+        DELETE  FROM  com_man_re_user_community WHERE  community_id = #{communityId} AND user_id = #{userId}
+    </delete>
+
+    <update id="memberApprovalById" >
+        UPDATE   com_man_re_user_community SET status = 1  WHERE community_id = #{communityId} AND user_id = #{userId}
+    </update>
+
+    <select id="memberByStatistics" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM com_man_re_user_community WHERE community_id = #{communityId}
+    </select>
+
+    <select id="findAllUserForOption" resultMap="userMap">
+        SELECT user_id,user_name FROM com_man_user
+    </select>
+</mapper>

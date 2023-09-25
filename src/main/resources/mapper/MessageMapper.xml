@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.limin.commanser.mapper.MessageMapper">
+    <resultMap id="messageResultMap" type="com.limin.commanser.dto.MessageDto">
+        <id column="message_id" property="messageId"/>
+        <result column="message_content" property="messageContent"/>
+        <result column="message_send" property="messageSend"/>
+        <result column="message_recv" property="messageRecv"/>
+        <result column="message_status" property="messageStatus"/>
+        <result column="message_time" property="messageTime"/>
+    </resultMap>
+
+
+    <select id="findMessage" resultMap="messageResultMap">
+        SELECT * FROM com_man_message
+            WHERE  com_man_message.`message_recv` = #{messageRecv}
+                AND com_man_message.`message_status` = 0
+    </select>
+
+    <update id="modifyMessage" parameterType="com.limin.commanser.entity.Message">
+        UPDATE com_man_message  SET  com_man_message.`message_status` = 1
+            WHERE com_man_message.`message_id` = #{messageId}
+    </update>
+
+    <insert id="addMessage" parameterType="com.limin.commanser.entity.Message" keyColumn="message_id"
+            useGeneratedKeys="true">
+        INSERT INTO com_man_message (message_content,message_send,message_recv,message_status,message_time)
+            VALUES (#{messageContent},#{messageSend},#{messageRecv},0,#{messageTime})
+    </insert>
+</mapper>

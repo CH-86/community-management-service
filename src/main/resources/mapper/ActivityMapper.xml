@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.limin.commanser.mapper.ActivityMapper">
+    <resultMap id="activityMap" type="com.limin.commanser.entity.Activity">
+        <id column="activity_id" property="activityId"/>
+        <result column="activity_community_id" property="activityCommunityId"/>
+        <result column="activity_name" property="activityName"/>
+        <result column="activity_type" property="activityType"/>
+        <result column="activity_start_time" property="activityStartTime"/>
+        <result column="activity_end_time" property="activityEndTime"/>
+        <result column="activity_image" property="activityImage"/>
+        <result column="activity_address" property="activityAddress"/>
+        <result column="activity_sponser" property="activitySponser"/>
+        <result column="activity_description" property="activityDescription"/>
+        <result column="activity_status" property="activityStatus"/>
+    </resultMap>
+    <resultMap id="activityInfoMap" type="com.limin.commanser.dto.ActivityDto">
+        <id column="activity_id" property="activityId"/>
+        <result column="activity_community_id" property="activityCommunityId"/>
+        <result column="activity_name" property="activityName"/>
+        <result column="activity_type" property="activityType"/>
+        <result column="activity_start_time" property="activityStartTime"/>
+        <result column="activity_end_time" property="activityEndTime"/>
+        <result column="activity_image" property="activityImage"/>
+        <result column="activity_address" property="activityAddress"/>
+        <result column="activity_sponser" property="activitySponser"/>
+        <result column="activity_description" property="activityDescription"/>
+        <result column="activity_status" property="activityStatus"/>
+        <result column="community_id" property="communityId"/>
+        <result column="community_name" property="communityName"/>
+        <result column="community_discription" property="communityDiscription"/>
+        <result column="community_logo" property="communityLogo"/>
+        <result column="community_status" property="communityStatus"/>
+    </resultMap>
+
+
+    <select id="findAllByPaging" resultMap="activityInfoMap" parameterType="map">
+        SELECT * FROM com_man_activity
+            JOIN com_man_community ON com_man_activity.activity_community_id = com_man_community.community_id
+
+            <where>
+                <if test="communityId != null and communityId != ''">
+                    AND community_id = #{communityId}
+                </if>
+                <if test="activityStatus != null and activityStatus != ''">
+                    AND activity_status = #{activityStatus}
+                </if>
+            </where>
+
+        <if test="order != null and order != ''">
+            ORDER BY activity_end_time ${order}
+        </if>
+
+    </select>
+
+    <select id="findTotal" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM com_man_activity
+    </select>
+
+    <delete id="removeById" parameterType="java.lang.Integer">
+        DELETE FROM com_man_activity  WHERE activity_id = #{activityId}
+    </delete>
+
+    <insert id="add" parameterType="com.limin.commanser.entity.Activity" useGeneratedKeys="true" keyProperty="activityId">
+        INSERT INTO com_man_activity
+            (
+                activity_community_id,
+                activity_name,
+                activity_type,
+                activity_start_time,
+                activity_end_time,
+                activity_image,
+                activity_address,
+                activity_sponser,
+                activity_description
+            )
+        VALUES
+        (
+            #{activityCommunityId},
+            #{activityName},
+            #{activityType},
+            #{activityStartTime},
+            #{activityEndTime},
+            #{activityImage},
+            #{activityAddress},
+            #{activitySponser},
+            #{activityDescription}
+        )
+    </insert>
+
+    <update id="modify" parameterType="com.limin.commanser.entity.Activity">
+        UPDATE com_man_activity SET
+        <if test="activityName != null and activityName != ''">
+            activity_name = #{activityName}
+        </if>
+        <if test="activityType != null and activityType != ''">
+            activity_type = #{activityType}
+        </if>
+        <if test="activityStartTime != null and activityStartTime != ''">
+            activity_start_time = #{activityStartTime}
+        </if>
+        <if test="activityEndTime != null and activityEndTime != ''">
+            activity_end_time = #{activityEndTime}
+        </if>
+        <if test="activityImage != null and activityImage != ''">
+            activity_image = #{activityImage}
+        </if>
+        <if test="activityAddress != null and activityAddress != ''">
+            activity_address = #{activityAddress}
+        </if>
+        <if test="activitySponser != null and activitySponser != ''">
+            activity_sponser = #{activitySponser}
+        </if>
+        <if test="activityDescription != null and activityDescription != ''">
+            activity_description = #{activityDescription}
+        </if>
+        WHERE activity_id = #{activityId}
+    </update>
+
+    <update id="approvalActivity">
+        UPDATE com_man_activity SET  activity_status = #{activityStatus}
+         WHERE activity_id = #{activityId}
+    </update>
+
+    <select id="findPuplishActivities" resultMap="activityInfoMap">
+       SELECT * FROM com_man_activity
+       JOIN com_man_community  ON com_man_activity.activity_community_id = com_man_community.community_id
+        WHERE activity_community_id = #{communityId} AND activity_type = #{activityType}
+    </select>
+
+    <select id="findJoinActivities" resultMap="activityInfoMap">
+        SELECT * FROM com_man_activity
+        JOIN com_man_community  ON com_man_activity.activity_community_id = com_man_community.community_id
+        WHERE activity_id
+            IN (
+                SELECT com_man_re_user_activity.activity_id FROM com_man_re_user_activity
+                    WHERE com_man_re_user_activity.`status` = 3
+                    AND com_man_re_user_activity.user_id = #{userId}
+               )
+               AND activity_type = #{activityType}
+    </select>
+
+    <select id="findAllByCommunityIdStatistics" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+       SELECT COUNT(1) FROM com_man_activity news WHERE activity_community_id = #{communityId}
+    </select>
+
+    <select id="findAllByStatistics" resultMap="activityMap">
+        SELECT * FROM  com_man_activity
+    </select>
+
+    <insert id="joinActivity" parameterType="com.limin.commanser.dto.JoinActivityDto">
+        INSERT INTO com_man_re_user_activity (activity_id,user_id,`status`) VALUES (#{activityId},#{userId},#{status})
+    </insert>
+
+</mapper>
